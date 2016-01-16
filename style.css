@@ -1,0 +1,20 @@
+.bClick{
+  height: 40px;
+  width: 113px;
+  font-size: 14px;
+  color: black;
+  line-height: 1.866;
+  background: transparent;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  border-radius: 10px;
+}
+
+canvas{
+	border: black 2px solid;
+}
+
+.runningAnimation{
+  display: none;
+}
