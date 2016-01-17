@@ -1,68 +1,3 @@
-//Class for person
-function person(x,y){
-	//Private fields
-	this.x = x;
-	this.y = y;
-	t = 0;
-	width = 60;
-	height = 72;
-	jumping = false;
-	var element;
-
-	//Public set/get functions
-	this.getWidth = function(){
-	return this.width;
-	}
-	this.getHeight = function(){
-		return this.height;
-	}
-	this.getX = function(){
-		return this.x;
-	}
-	this.getY = function(){
-		return this.y;
-	}
-	//Get element from the HTML file
-	this.getElement = function(id){
-		element = document.getElementById(id);
-	}
-	//Updates the time from last time the function ran
-	this.updateT = function(t){
-		if(t == 0){
-			t = 0;
-		}
-		else{
-			t = (new Date) - t;
-		}	 
-	}
-
-	//Public linear move functions
-	this.moveX = function(delta){
-		this.x += delta;
-	}
-	this.moveY = function(delta){
-		this.y += delta;
-	}
-
-	//Public jump function
-	this.updateJumpY = function(){
-		updateT();
-		var a = 0.15;
-		var v = -72;
-		var deltaY = v*t + t*t;
-		moveY(deltaY);
-		t = (new date);
-	}
-}
-
-while(gameRunning){
-	//upDate();
-	//draw();
-}
-
-
-
-
 var gameRunning;
 var startButton = document.getElementById("button");
 var jumpButton = document.getElementById("button2");
@@ -73,10 +8,116 @@ var animation = document.getElementsByClassName("runningAnimation");
 
 
 //Buttons for Run, jump, and stop
-var run, jump;
-startButton.addEventListener("click", activate);
-jumpButton.addEventListener("click", jump);
-stopButton.addEventListener("click", stop);
+// var run, jump;
+// startButton.addEventListener("click", activate);
+// jumpButton.addEventListener("click", jump);
+// stopButton.addEventListener("click", stop);
+
+
+//Main here!
+var p = new person(0, 100);
+
+function paint(){
+	p.drawE();
+	p.updateJumpY();
+}
+
+
+var s = setInterval(paint, 30);
+
+
+
+//Class for person
+function person(x,y){
+	//Private fields
+	this.x = x;
+	this.y = y;
+	this.t = 0;
+	this.width = 60,
+	this.height = 72;
+	this.running = false;
+	this.jumping = true;
+	this.currFrame = 0;
+	this.element = document.getElementsByClassName("runningAnimation");
+	this.velocity = 13;
+
+
+	//Public set/get functions
+	this.getWidth = function(){
+		return this.width;
+	}
+	this.getHeight = function(){
+		return this.height;
+	}
+	this.getX = function(){
+		return this.x;
+	}
+	this.getY = function(){
+		return this.y;
+	}
+
+
+	//Updates the time from last time the function ran
+	this.updateT = function(){
+		this.t += 60; 		 
+	}
+
+	
+	//Public jump function
+	var wayUp =  true;
+	this.updateJumpY = function(){
+		if(this.jumping && (wayUp)){
+			if(this.velocity < 1){
+				wayUp = false;
+			}
+			else{
+				this.y -= this.velocity;
+				this.velocity /= 1.2;	
+			}
+				
+		}
+		else if(this.jumping && !wayUp){
+			if(this.y > 100){
+				this.jumping = false;
+				this.running = true;
+				y = 100;
+			}
+			if(this.velocity < 1 && y <= 100)
+				this.velocity = 1;
+			this.y += this.velocity;
+			this.velocity *= 1.2;
+		}
+	}
+
+
+	//Updates the frame number
+	this.updateFrame = function(){
+		if(this.running){
+			if(this.currFrame == 5)
+				this.currFrame = 0;
+			else
+				this.currFrame++;
+		}
+		else if(this.jumping){
+			if(this.y < 40)
+				this.currFrame = 0;
+			else 
+				this.currFrame = 4;
+		}
+	}
+
+	//Function to draw the elemet
+	this.drawE = function(){
+		clearCanvas();
+		ctx.drawImage(this.element[this.currFrame], this.x, this.y, this.width, this.height);
+		this.updateFrame();
+	}
+}
+
+
+
+
+
 
 //Starts running
 function activate(){
@@ -133,3 +174,7 @@ function stop(){
 //1. one class for element with: fields: x, y, width, heigh, type; and one class for background
 //2. one class for person, one for obstacle, one for flyingObstacle?; and one class for background
 
+// while(gameRunning){
+// 	//upDate();
+// 	//draw();
+// }
