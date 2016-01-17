@@ -9,25 +9,29 @@ var animation = document.getElementsByClassName("runningAnimation");
 
 //Buttons for Run, jump, and stop
 // var run, jump;
-// startButton.addEventListener("click", activate);
+// startButton.addEventListener("click", action);
 // jumpButton.addEventListener("click", jump);
 // stopButton.addEventListener("click", stop);
 
 
 //Main here!
 var p = new person(0, 100);
+var o = new obstacle(1);
+
+p.drawE();
+o.drawO();
 
 function paint(){
 	p.drawE();
+	o.drawO();
 	p.updateJumpY();
 }
-
 
 var s = setInterval(paint, 30);
 
 
 
-//Class for person
+//Class for person-------------------------------------------------------
 function person(x,y){
 	//Private fields
 	this.x = x;
@@ -43,44 +47,47 @@ function person(x,y){
 
 
 	//Public set/get functions
-	this.getWidth = function(){
-		return this.width;
-	}
-	this.getHeight = function(){
-		return this.height;
-	}
-	this.getX = function(){
-		return this.x;
-	}
-	this.getY = function(){
-		return this.y;
-	}
+	// this.getWidth = function(){
+	// 	return this.width;
+	// }
+	// this.getHeight = function(){
+	// 	return this.height;
+	// }
+	// this.getX = function(){
+	// 	return this.x;
+	// }
+	// this.getY = function(){
+	// 	return this.y;
+	// }
 
 
 	//Updates the time from last time the function ran
 	this.updateT = function(){
-		this.t += 60; 		 
+		this.t += 30; 		 
 	}
 
 	
 	//Public jump function
 	var wayUp =  true;
 	this.updateJumpY = function(){
+		//The person is jumping up
 		if(this.jumping && (wayUp)){
-			if(this.velocity < 1){
+			//If we get to the top update status
+			if(this.velocity < 1){		
 				wayUp = false;
 			}
 			else{
+				//Ddecrease position
 				this.y -= this.velocity;
 				this.velocity /= 1.2;	
 			}
 				
-		}
+		}//continue comments here!
 		else if(this.jumping && !wayUp){
 			if(this.y > 100){
 				this.jumping = false;
 				this.running = true;
-				y = 100;
+				this.y = 100;
 			}
 			if(this.velocity < 1 && y <= 100)
 				this.velocity = 1;
@@ -95,12 +102,12 @@ function person(x,y){
 		if(this.running){
 			if(this.currFrame == 5)
 				this.currFrame = 0;
-			else
+			else if(this.t%60 == 0)
 				this.currFrame++;
 		}
 		else if(this.jumping){
-			if(this.y < 40)
-				this.currFrame = 0;
+			if(!wayUp)
+				this.currFrame = 2;
 			else 
 				this.currFrame = 4;
 		}
@@ -111,61 +118,64 @@ function person(x,y){
 		clearCanvas();
 		ctx.drawImage(this.element[this.currFrame], this.x, this.y, this.width, this.height);
 		this.updateFrame();
+		this.updateT();
 	}
 }
 
 
 
 
+//Class for obstacle-------------------------------------------------------
+function obstacle(n){
+	this.height = 60;
+	this.width = 30*n;
+	this.x = canvas.width - this.width - 10;
+	this.y = 130;
+	this.speed;
 
 
-//Starts running
-function activate(){
-	var i = 0;
-	stop();
-	run = setInterval(draw, 60);
-	function draw(){
-		clearCanvas();
-		ctx.drawImage(animation[i],0,60,60,72);
-		i++;
-		if(i>5){
-			i = 0;
-		}
+	//Copy gets/sets if necessary
+	//...........
+
+	//Updates coordinates
+	this.move = function(){
+		//code goes here
+		//Uses the same speed as the floor
+	}
+
+	//Draws the obstacle
+	this.drawO = function(){
+		ctx.fillStyle = "#f29d15";
+		ctx.fillRect(this.x, this.y, this.width, this.height);
 	}
 }
 
-//Starts a jump then continues running
-function jump(){
-	var wayUp = true;
-	var y = 0;
 
-	stop();
-	jump = setInterval(drawJ, 16);
-	function drawJ(){
-		clearCanvas();
-		if(y < 60 && wayUp){
-			ctx.drawImage(animation[4], 0, (60 - y), 60, 72);
-			y += 4;	
-		}
-		else{
-			ctx.drawImage(animation[0], 0, (60 - y), 60, 72);
-			y -= 5;
-			wayUp = false;
-		}
-		if(y < -5){
-			window.clearInterval(jump);
-			activate();
-		}
+
+//Class for bird---------------------------------------------------------------
+function bird(speed){
+	this.height;
+	this.width;
+	this.x;
+	this.y;
+
+	//Updates the coordinates
+	this.move = function(){
+		//code goes here
+		//Uses the a different speed than the floor
+	}
+
+	//Draws the bird frame by frame
+	this.drawO = function(){
+		//Details will depend on gif used
+		//No need for an update frame function
+		//Since it's just a linear uniform sequence
 	}
 }
+
 
 function clearCanvas(){
 	ctx.clearRect(0,0, canvas.width, canvas.height);
-}
-
-function stop(){
-	window.clearInterval(run);
-	window.clearInterval(jump);
 }
 
 //Need to learn JavaScript to better structure the game
