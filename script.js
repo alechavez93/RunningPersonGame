@@ -16,14 +16,20 @@ var animation = document.getElementsByClassName("runningAnimation");
 
 //Main here!
 var p = new person(0, 100);
-var o = new obstacle(1);
+var o = new obstacle(1, 10);
+var b = new bird(7);
 
 p.drawE();
 o.drawO();
+b.drawB();
 
 function paint(){
 	p.drawE();
 	o.drawO();
+	b.drawB();
+	
+	o.moveX();
+	b.moveX();
 	p.updateJumpY();
 }
 
@@ -126,21 +132,20 @@ function person(x,y){
 
 
 //Class for obstacle-------------------------------------------------------
-function obstacle(n){
+function obstacle(n, speed){
 	this.height = 60;
 	this.width = 30*n;
 	this.x = canvas.width - this.width - 10;
 	this.y = 130;
-	this.speed;
+	this.speed = speed;
 
 
 	//Copy gets/sets if necessary
 	//...........
 
 	//Updates coordinates
-	this.move = function(){
-		//code goes here
-		//Uses the same speed as the floor
+	this.moveX = function(){
+		this.x -= this.speed;
 	}
 
 	//Draws the obstacle
@@ -154,22 +159,38 @@ function obstacle(n){
 
 //Class for bird---------------------------------------------------------------
 function bird(speed){
-	this.height;
-	this.width;
-	this.x;
-	this.y;
+	this.height = 38.5;
+	this.width = 60;
+	this.x = canvas.width - this.width - 10;
+	this.y = 70;
+	this.t = 0;
+	this.speed =  speed;
+	this.currFrame = 0;
+	this.element = document.getElementsByClassName("birdAnimation");
 
 	//Updates the coordinates
-	this.move = function(){
-		//code goes here
-		//Uses the a different speed than the floor
+	this.moveX = function(){
+		this.x -= this.speed;
+	}
+
+	//Update time
+	this.updateT = function(){
+		this.t += 30; 
+	}
+
+	//Update frame
+	this.updateFrame = function(){
+		if(this.currFrame == 3)
+				this.currFrame = 0;
+		else if(this.t%180 == 0)
+			this.currFrame++;
 	}
 
 	//Draws the bird frame by frame
-	this.drawO = function(){
-		//Details will depend on gif used
-		//No need for an update frame function
-		//Since it's just a linear uniform sequence
+	this.drawB = function(){
+		ctx.drawImage(this.element[this.currFrame], this.x, this.y, this.width, this.height);
+		this.updateFrame();
+		this.updateT();
 	}
 }
 

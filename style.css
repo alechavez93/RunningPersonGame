@@ -18,3 +18,7 @@ canvas{
 .runningAnimation{
   display: none;
 }
+
+.birdAnimation{
+  display: none;
+}
