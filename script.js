@@ -1,39 +1,106 @@
-var gameRunning;
-var startButton = document.getElementById("button");
-var jumpButton = document.getElementById("button2");
-var stopButton = document.getElementById("button3");
+var gameRunning = false;
 var canvas = document.getElementById("gameCanvas")
 var ctx = canvas.getContext("2d");
-var animation = document.getElementsByClassName("runningAnimation");
+var ground = document.getElementById("ground");
+var background = document.getElementById("background");
 
 
-//Buttons for Run, jump, and stop
-// var run, jump;
-// startButton.addEventListener("click", action);
-// jumpButton.addEventListener("click", jump);
-// stopButton.addEventListener("click", stop);
+
+//Main here!-------------------------
+
+//Objects
+var deltaX = 0;
+var globalTime = 0;
+var globalSpeed = 7;
+var p = new person(20, 120);
+var o = new obstacle(1, globalSpeed);
+var b = new bird(4);
 
 
-//Main here!
-var p = new person(0, 100);
-var o = new obstacle(1, 10);
-var b = new bird(7);
+//EventListeners
+var jump = document.getElementById("button2");
+var start = document.getElementById("button");
+jump.addEventListener("click", initializeJump);
+start.addEventListener("click", initializeGame);
 
-p.drawE();
-o.drawO();
-b.drawB();
+// drawGround();
+// p.drawE();
+var s = setInterval(game, 30);
 
-function paint(){
-	p.drawE();
-	o.drawO();
-	b.drawB();
-	
-	o.moveX();
-	b.moveX();
-	p.updateJumpY();
+
+
+
+
+
+
+
+//Main functions---------------------------------------------------------
+function initializeJump(){
+	if(p.running){
+		p.running = false;
+		p.jumping = true;
+	}
 }
 
-var s = setInterval(paint, 30);
+function initializeGame(){
+	gameRunning = true;
+}
+
+function clearCanvas(){
+	ctx.clearRect(0,0, canvas.width, canvas.height);
+}
+
+function updateCanvas(){
+	if(p.jumping){
+		p.updateJumpY();
+	}
+	o.updateX();
+}
+
+function drawCanvas(){
+	clearCanvas();
+	drawBackground();
+	drawGround();
+	p.drawE();
+	o.drawO();
+	globalTime += 30;
+}
+
+function checkCollision(obs){
+	var error = 10;
+	if(/*Horizontal collision*/(p.x <= obs.x + obs.width && p.x + p.width >= obs.x)
+		&& /*Vertical collision*/(p.y <= obs.y + obs.height && p.y + p.height >= obs.y)){
+		gameRunning = false;
+	}
+}
+
+function game(){
+	if(gameRunning){
+		updateCanvas();
+		drawCanvas();
+		checkCollision(o);
+	}
+}
+
+
+function drawGround(){
+	if(deltaX >= 595)
+		deltaX = 0;
+	ctx.drawImage(ground, deltaX, 0, 600, 40, 0, 170, 600, 40);
+	deltaX += globalSpeed;
+}
+
+function drawBackground(){
+	ctx.drawImage(background,0,0,600,200);
+}
+
+
+//Class for map---------------------------------------------------------
+function map(){
+	this.view;
+	this.all = {};
+
+}
 
 
 
@@ -42,29 +109,17 @@ function person(x,y){
 	//Private fields
 	this.x = x;
 	this.y = y;
+	this.ground = y;
 	this.t = 0;
-	this.width = 60,
-	this.height = 72;
-	this.running = false;
-	this.jumping = true;
+	this.width = 43,
+	this.height = 51;
+	this.running = true;
+	this.jumping = false;
 	this.currFrame = 0;
 	this.element = document.getElementsByClassName("runningAnimation");
-	this.velocity = 13;
-
-
-	//Public set/get functions
-	// this.getWidth = function(){
-	// 	return this.width;
-	// }
-	// this.getHeight = function(){
-	// 	return this.height;
-	// }
-	// this.getX = function(){
-	// 	return this.x;
-	// }
-	// this.getY = function(){
-	// 	return this.y;
-	// }
+	this.velocity = 20;
+	this.gravity = 1.3;
+	this.initialVelocity = this.velocity;
 
 
 	//Updates the time from last time the function ran
@@ -83,25 +138,31 @@ function person(x,y){
 				wayUp = false;
 			}
 			else{
-				//Ddecrease position
+				//Decrease y position
 				this.y -= this.velocity;
-				this.velocity /= 1.2;	
+				this.velocity /= this.gravity;	
 			}
 				
-		}//continue comments here!
+		}//The person is on the way down
 		else if(this.jumping && !wayUp){
-			if(this.y > 100){
+			//Initial case velocity is less than 1
+			if(this.velocity < 1 && y <= this.ground)
+				this.velocity = 1;
+
+			//Normal way down motion
+			this.y += this.velocity;
+			this.velocity *= this.gravity;
+			//Checking for the ending of the jump
+			if(this.y > this.ground){	
+				//RESET EVERYTHING
 				this.jumping = false;
 				this.running = true;
-				this.y = 100;
-			}
-			if(this.velocity < 1 && y <= 100)
-				this.velocity = 1;
-			this.y += this.velocity;
-			this.velocity *= 1.2;
+				this.velocity = this.initialVelocity;
+				wayUp = true;
+				this.y = this.ground;
+			}	
 		}
 	}
-
 
 	//Updates the frame number
 	this.updateFrame = function(){
@@ -121,7 +182,6 @@ function person(x,y){
 
 	//Function to draw the elemet
 	this.drawE = function(){
-		clearCanvas();
 		ctx.drawImage(this.element[this.currFrame], this.x, this.y, this.width, this.height);
 		this.updateFrame();
 		this.updateT();
@@ -136,7 +196,8 @@ function obstacle(n, speed){
 	this.height = 60;
 	this.width = 30*n;
 	this.x = canvas.width - this.width - 10;
-	this.y = 130;
+	this.y = 110;
+	this.element = document.getElementsByClassName("obstacle");
 	this.speed = speed;
 
 
@@ -144,17 +205,15 @@ function obstacle(n, speed){
 	//...........
 
 	//Updates coordinates
-	this.moveX = function(){
+	this.updateX = function(){
 		this.x -= this.speed;
 	}
 
 	//Draws the obstacle
 	this.drawO = function(){
-		ctx.fillStyle = "#f29d15";
-		ctx.fillRect(this.x, this.y, this.width, this.height);
+		ctx.drawImage(this.element[0],this.x, this.y, this.width, this.height);
 	}
 }
-
 
 
 //Class for bird---------------------------------------------------------------
@@ -195,17 +254,16 @@ function bird(speed){
 }
 
 
-function clearCanvas(){
-	ctx.clearRect(0,0, canvas.width, canvas.height);
-}
-
-//Need to learn JavaScript to better structure the game
-//Need Classes for objects
-//Options: 
-//1. one class for element with: fields: x, y, width, heigh, type; and one class for background
-//2. one class for person, one for obstacle, one for flyingObstacle?; and one class for background
-
-// while(gameRunning){
-// 	//upDate();
-// 	//draw();
-// }
+	//Public set/get functions
+	// this.getWidth = function(){
+	// 	return this.width;
+	// }
+	// this.getHeight = function(){
+	// 	return this.height;
+	// }
+	// this.getX = function(){
+	// 	return this.x;
+	// }
+	// this.getY = function(){
+	// 	return this.y;
+	// }

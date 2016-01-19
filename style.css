@@ -1,3 +1,7 @@
+.body{
+  position: relative;
+}
+
 .bClick{
   height: 40px;
   width: 113px;
@@ -9,10 +13,29 @@
   border-width: 2px;
   border-color: black;
   border-radius: 10px;
+  border: black 2px solid;  
+}
+
+.input{
+  list-style: none;
+  position: absolute;
+  margin-left: -300px;
+  left: 50%;
+  top: 50%;
+  margin-top: 75px;
+}
+
+li{
+  display: inline;
 }
 
 canvas{
-	border: black 2px solid;
+  position: absolute;
+	border: black 2px solid;  
+  margin-left: -300px;
+  left: 50%;
+  top: 50%;
+  margin-top: -150px;
 }
 
 .runningAnimation{
@@ -20,5 +43,9 @@ canvas{
 }
 
 .birdAnimation{
+  display: none;
+}
+
+.element{
   display: none;
 }

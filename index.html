@@ -5,7 +5,7 @@
 </head>
 <body>
 	<div class="game">
-		<img class="runningAnimation" id="person" src="images/runningPerson.gif">
+		<img class="runningAnimation" id="f0" src="images/frame0.PNG">
 		<img class="runningAnimation" id="f1" src="images/frame1.PNG">
 		<img class="runningAnimation" id="f2" src="images/frame2.PNG">
 		<img class="runningAnimation" id="f3" src="images/frame3.PNG">
@@ -15,11 +15,16 @@
 		<img class="birdAnimation" id="Bf2" src="images/birdFrame2.PNG">
 		<img class="birdAnimation" id="Bf3" src="images/birdFrame3.PNG">
 		<img class="birdAnimation" id="Bf4" src="images/birdFrame4.PNG">
+		<img class="element obstacle"src="images/obstacle1.png">
+		<img class="element obstacle"src="images/obstacle2.png">
+		<img class="element" id="ground" src="images/ground.png">
+		<img class="element" id="background" src="images/background.png">
 		<canvas id="gameCanvas" width="600" height="200"></canvas>
 		<br>
-		<button class="bClick" id="button">Start</button>
-		<button class="bClick" id="button2">Jump</button>
-		<button class="bClick" id="button3">Stop</button>
+		<ul class="input">
+			<li><button class="bClick" id="button">Start</button></li>
+			<li><button class="bClick" id="button2">Jump</button></li>
+		</ul>	
 	</div>
 
 	<script src="script.js"></script>
