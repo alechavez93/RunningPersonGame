@@ -9,12 +9,17 @@ var background = document.getElementById("background");
 //Main here!-------------------------
 
 //Objects
+var distance = 125;
+var change = 60;
 var deltaX = 0;
+var deltaB = 0;
 var globalTime = 0;
 var globalSpeed = 7;
 var p = new person(20, 120);
-var o = new obstacle(1, globalSpeed);
-var b = new bird(4);
+var o1 = new obstacle(2 , 1); //Single
+var o2 = new obstacle(1 , 1); //Single small
+var o3 = new obstacle(2 , 2); //Double
+var b = new bird(globalSpeed + 2);
 
 
 //EventListeners
@@ -23,13 +28,12 @@ var start = document.getElementById("button");
 jump.addEventListener("click", initializeJump);
 start.addEventListener("click", initializeGame);
 
-// drawGround();
-// p.drawE();
+
 var s = setInterval(game, 30);
-
-
-
-
+// function test(){
+// 	gameRunning = false;
+// 	alert(deltaB);
+// }
 
 
 
@@ -54,7 +58,19 @@ function updateCanvas(){
 	if(p.jumping){
 		p.updateJumpY();
 	}
-	o.updateX();
+	if(o1.x > -200){
+		o1.updateX();
+	}
+	if(o2.x > -200){
+		o2.updateX();
+	}
+	if(o3.x > -200){
+		o3.updateX();
+	}
+	if(b.x > -200){
+		b.updateX();
+	}
+
 }
 
 function drawCanvas(){
@@ -62,7 +78,7 @@ function drawCanvas(){
 	drawBackground();
 	drawGround();
 	p.drawE();
-	o.drawO();
+	drawObstacles();
 	globalTime += 30;
 }
 
@@ -90,17 +106,83 @@ function drawGround(){
 	deltaX += globalSpeed;
 }
 
+//Continue Here!!
 function drawBackground(){
-	ctx.drawImage(background,0,0,600,200);
+	if(deltaB == 2399)
+		deltaB = 0;
+	ctx.drawImage(background, deltaB, 0, 1200, 400, 0, 0, 600, 200);
+	deltaB += 1;
+}
+
+var kind;
+function drawObstacles(){
+	kind = parseInt(Math.random()*10)%2;
+	if(kind==0){ 	//Throw an obstacle
+		kind = parseInt(Math.random()*100);
+		if((kind == 10 || kind == 47 || kind == 31 || kind == 94) && o1.x < -150 && check(o1)){
+			o1.x = canvas.width;
+		}
+		if((kind == 3 || kind == 54 || kind == 82) && o2.x < -150 && check(o2)){
+			o2.x = canvas.width;
+		}
+		if((kind == 19  || kind == 61) && o3.x < -150 && check(o3)){
+			o3.x = canvas.width;
+		}
+	}
+	if(kind==1 && b.x < -150){		//Throw a bird
+		kind = parseInt(Math.random()*100);
+		if((kind == 6 || kind == 73 || kind == 39) && check(b)){
+			b.x = canvas.width;
+		}	
+	}
+	o1.drawO();
+	o2.drawO();
+	o3.drawO();
+	b.drawB();
+}
+
+var c;
+function check(object){
+	c = true;
+	if(!Object.is(object, o1)){
+		if(!checkDistance(object, o1)){
+			c = false;
+		}
+	}
+	if(!Object.is(object, o2)){
+		if(!checkDistance(object, o2)){
+			c = false;
+		}
+	}
+	if(!Object.is(object, o3)){
+		if(!checkDistance(object, o3)){
+			c = false;
+		}
+	}
+	if(!Object.is(object, b)){
+		if(!checkDistance(object, b)){
+			c = false;
+		}
+	}
+	return c;
+}
+
+function checkDistance(inserted,object){
+	if(Object.is(object, b) && (600 - object.x > (distance + change))){
+		return true;
+	}
+	if(Object.is(object, o2) && !(Object.is(object, b)) && (600 - object.x > (distance - change + 20))){
+		return true;
+	}
+	else if(600 - object.x > (distance + change)){
+		return true;
+	}
+	else return false;
 }
 
 
-//Class for map---------------------------------------------------------
-function map(){
-	this.view;
-	this.all = {};
 
-}
+
 
 
 
@@ -167,7 +249,7 @@ function person(x,y){
 	//Updates the frame number
 	this.updateFrame = function(){
 		if(this.running){
-			if(this.currFrame == 5)
+			if(this.currFrame == 6)
 				this.currFrame = 0;
 			else if(this.t%60 == 0)
 				this.currFrame++;
@@ -192,14 +274,21 @@ function person(x,y){
 
 
 //Class for obstacle-------------------------------------------------------
-function obstacle(n, speed){
-	this.height = 60;
+function obstacle(h , n){
+	this.height = 30*h;
 	this.width = 30*n;
-	this.x = canvas.width - this.width - 10;
+	this.x = -200;
 	this.y = 110;
 	this.element = document.getElementsByClassName("obstacle");
-	this.speed = speed;
+	this.speed = globalSpeed;
+	this.index = h-1;
 
+	if(h == 1){
+		this.y+=30;
+	}
+	if(n == 2){
+		this.index = 2;
+	}
 
 	//Copy gets/sets if necessary
 	//...........
@@ -211,24 +300,24 @@ function obstacle(n, speed){
 
 	//Draws the obstacle
 	this.drawO = function(){
-		ctx.drawImage(this.element[0],this.x, this.y, this.width, this.height);
+		ctx.drawImage(this.element[this.index],this.x, this.y, this.width, this.height);
 	}
 }
 
 
 //Class for bird---------------------------------------------------------------
 function bird(speed){
-	this.height = 38.5;
-	this.width = 60;
-	this.x = canvas.width - this.width - 10;
-	this.y = 70;
+	this.height = 51;
+	this.width = 80;
+	this.x = -200;
+	this.y = 55;
 	this.t = 0;
 	this.speed =  speed;
 	this.currFrame = 0;
 	this.element = document.getElementsByClassName("birdAnimation");
 
 	//Updates the coordinates
-	this.moveX = function(){
+	this.updateX = function(){
 		this.x -= this.speed;
 	}
 
@@ -252,18 +341,3 @@ function bird(speed){
 		this.updateT();
 	}
 }
-
-
-	//Public set/get functions
-	// this.getWidth = function(){
-	// 	return this.width;
-	// }
-	// this.getHeight = function(){
-	// 	return this.height;
-	// }
-	// this.getX = function(){
-	// 	return this.x;
-	// }
-	// this.getY = function(){
-	// 	return this.y;
-	// }
